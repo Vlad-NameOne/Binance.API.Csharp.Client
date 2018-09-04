@@ -1,7 +1,9 @@
-﻿using Binance.API.Csharp.Client.Models.Market;
+﻿using System;
+using Binance.API.Csharp.Client.Models.Market;
 using Binance.API.Csharp.Client.Models.WebSocket;
 using Newtonsoft.Json.Linq;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Linq;
 
 namespace Binance.API.Csharp.Client.Utils
@@ -74,31 +76,47 @@ namespace Binance.API.Csharp.Client.Utils
 
         public DepthMessage GetParsedDepthMessage(dynamic messageData)
         {
-            var result = new DepthMessage
+            try
             {
-                EventType = messageData.e,
-                EventTime = messageData.E,
-                Symbol = messageData.s,
-                UpdateId = messageData.u
+                var result = new DepthMessage
+                {
+                    EventType = messageData.e,
+                    EventTime = messageData.E,
+                    Symbol = messageData.s,
+                    UpdateId = messageData.u
+                };
+
+                var bids = new List<OrderBookOffer>();
+                var asks = new List<OrderBookOffer>();
+
+                foreach (JToken item in ((JArray) messageData.b).ToArray())
+                {
+                    bids.Add(Convert(item));
+                }
+
+                foreach (JToken item in ((JArray) messageData.a).ToArray())
+                {
+                    asks.Add(Convert(item));
+                }
+
+                result.Bids = bids;
+                result.Asks = asks;
+
+                return result;
+            }
+            catch (Exception e)
+            {
+                throw;
+            }
+
+        }
+        public static OrderBookOffer Convert(JToken token)
+        {
+            return new OrderBookOffer()
+            {
+                Price = decimal.Parse(token[0].ToString(), CultureInfo.InvariantCulture),
+                Quantity = decimal.Parse(token[1].ToString(), CultureInfo.InvariantCulture)
             };
-
-            var bids = new List<OrderBookOffer>();
-            var asks = new List<OrderBookOffer>();
-
-            foreach (JToken item in ((JArray)messageData.b).ToArray())
-            {
-                bids.Add(new OrderBookOffer() { Price = decimal.Parse(item[0].ToString()), Quantity = decimal.Parse(item[1].ToString()) });
-            }
-
-            foreach (JToken item in ((JArray)messageData.a).ToArray())
-            {
-                asks.Add(new OrderBookOffer() { Price = decimal.Parse(item[0].ToString()), Quantity = decimal.Parse(item[1].ToString()) });
-            }
-
-            result.Bids = bids;
-            result.Asks = asks;
-
-            return result;
         }
     }
 }
