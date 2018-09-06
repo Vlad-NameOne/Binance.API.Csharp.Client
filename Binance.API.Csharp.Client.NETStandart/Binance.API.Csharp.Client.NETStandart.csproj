@@ -1,0 +1,17 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>netstandard2.0</TargetFramework>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Newtonsoft.Json" Version="11.0.2" />
+    <PackageReference Include="websocketsharp.core" Version="1.0.0" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Binance.API.Csharp.Client.Domain.NETStandart\Binance.API.Csharp.Client.Domain.NETStandart.csproj" />
+    <ProjectReference Include="..\Binance.API.Csharp.Client.Models.NETStandart\Binance.API.Csharp.Client.Models.NETStandart.csproj" />
+  </ItemGroup>
+
+</Project>
